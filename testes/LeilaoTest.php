@@ -5,13 +5,12 @@
  *
  * @author alex.matos
  */
-
 require '../Usuario.php';
 require '../Leilao.php';
 require '../Lance.php';
 require '../Avaliador.php';
 
-class LeilaoTest  extends PHPUnit_Framework_TestCase {
+class LeilaoTest extends PHPUnit_Framework_TestCase {
 
     public function testDeveReceberUmLance() {
         $leilao = new Leilao("Macbook Pro 15");
@@ -32,8 +31,8 @@ class LeilaoTest  extends PHPUnit_Framework_TestCase {
         $this->assertEquals(2000, $leilao->getLances()[0]->getValor(), 0.00001);
         $this->assertEquals(3000, $leilao->getLances()[1]->getValor(), 0.00001);
     }
-    
-     public function testNaoDeveAceitarDoisLancesSeguidosDoMesmoUsuario() {
+
+    public function testNaoDeveAceitarDoisLancesSeguidosDoMesmoUsuario() {
         $leilao = new Leilao("Macbook Pro 15");
         $steveJobs = new Usuario("Steve Jobs");
 
@@ -43,7 +42,7 @@ class LeilaoTest  extends PHPUnit_Framework_TestCase {
         $this->assertEquals(1, count($leilao->getLances()));
         $this->assertEquals(2000, $leilao->getLances()[0]->getValor(), 0.00001);
     }
-    
+
     public function testNaoDeveAceitarMaisDoQue5LancesDeUmMesmoUsuario() {
         $leilao = new Leilao("Macbook Pro 15");
         $steveJobs = new Usuario("Steve Jobs");
@@ -65,8 +64,32 @@ class LeilaoTest  extends PHPUnit_Framework_TestCase {
 
         $this->assertEquals(10, count($leilao->getLances()));
         $ultimo = count($leilao->getLances()) - 1;
-        $ultimoLance = $leilao->getLances()[ultimo];
-        $this->assertEquals(11000.0, $ultimoLance->getValor(), 0.00001);
+        $ultimoLance = $leilao->getLances()[$ultimo];
+        $this->assertEquals(11000.0, $ultimoLance->getValor(), 0.0001);
     }
-    
+
+    public function testDobraLance() {
+        $leilao = new Leilao("Macbook Pro 15");
+        $steveJobs = new Usuario("Steve Jobs");
+        $billGates = new Usuario("Bill Gates");
+
+        $leilao->propoe(new Lance($steveJobs, 2000));
+        $leilao->propoe(new Lance($billGates, 3000));
+        $leilao->dobraLance($steveJobs);
+
+        $ultimo = count($leilao->getLances()) - 1;
+        $ultimoLance = $leilao->getLances()[$ultimo];
+        $this->assertEquals(3, count($leilao->getLances()));
+        $this->assertEquals(4000, $ultimoLance->getValor(), 0.0001);
+    }
+
+    public function testNaoDeveDobrarCasoNaoHajaLanceAnterior() {
+        $leilao = new Leilao("Macbook Pro 15");
+        $steveJobs = new Usuario("Steve Jobs");
+
+        $leilao->dobraLance($steveJobs);
+
+        $this->assertEquals(0, count($leilao->getLances()));
+    }
+
 }
